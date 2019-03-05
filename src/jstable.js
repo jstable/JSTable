@@ -56,8 +56,12 @@ const JSTabledefaultConfig = {
 
     // server side
     serverSide: false,
+    // total count of elements
     deferLoading: null,
-    ajax: null
+    // url for queries
+    ajax: null,
+    // additional params
+    ajaxParams : {}
 };
 
 class JSTable {
@@ -298,6 +302,8 @@ class JSTable {
             "length": this.config.perPage,
             "datatable": 1
         };
+        
+        params = Object.assign({}, this.config.ajaxParams, params);
 
         let query = this.config.ajax + '?' + this._queryParams(params);
 
@@ -497,7 +503,7 @@ class JSTable {
                 that.update();
             }
 
-            if (that.config.sortable && node.nodeName === "TH" && node.classList.contains(that.config.classes.sorter)) {
+            if (node.nodeName === "TH" && node.classList.contains(that.config.classes.sorter)) {
 
                 if (node.hasAttribute("data-sortable") && node.getAttribute("data-sortable") === "false")
                     return false;
@@ -600,6 +606,8 @@ class JSTable {
 
                         if (data.sortable === false) {
                             cell.classList.remove(that.config.classes.sorter);
+                        }else{
+                            cell.classList.add(that.config.classes.sorter);
                         }
                     }
 
