@@ -302,7 +302,7 @@ class JSTable {
             "length": this.config.perPage,
             "datatable": 1
         };
-        
+
         params = Object.assign({}, this.config.ajaxParams, params);
 
         let query = this.config.ajax + '?' + this._queryParams(params);
@@ -503,9 +503,9 @@ class JSTable {
                 that.update();
             }
 
-            if (node.nodeName === "TH" && node.classList.contains(that.config.classes.sorter)) {
+            if (node.nodeName === "TH" && node.hasAttribute("data-sortable")) {
 
-                if (node.hasAttribute("data-sortable") && node.getAttribute("data-sortable") === "false")
+                if (node.getAttribute("data-sortable") === "false")
                     return false;
 
                 event.preventDefault();
@@ -575,12 +575,18 @@ class JSTable {
     _buildColumns() {
         var that = this;
 
-        // add data-sortable
-        if (this.config.sortable) {
-            this.table.header.getCells().forEach(function (cell) {
+        /**
+         * - add "data-sortable" to table head when there is no data-sortable attribute and global sortable is active
+         * - sets the sorter css class on sortable columns
+         */
+        this.table.header.getCells().forEach(function (cell) {
+            let sortable = cell.hasAttribute("data-sortable") ? (cell.getAttribute("data-sortable") === "true") : that.config.sortable;
+            cell.setAttribute("data-sortable", sortable);
+
+            if (sortable) {
                 cell.classList.add(that.config.classes.sorter);
-            });
-        }
+            }
+        });
 
         if (this.config.columns) {
 
@@ -604,6 +610,9 @@ class JSTable {
                     if (data.hasOwnProperty("sortable")) {
                         cell.setAttribute("data-sortable", data.sortable);
 
+                        /**
+                         * change css class depending on the custom column definition
+                         */
                         if (data.sortable === false) {
                             cell.classList.remove(that.config.classes.sorter);
                         }else{
