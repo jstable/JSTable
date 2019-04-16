@@ -2,7 +2,7 @@
  * JSTable
  */
 
-const JSTabledefaultConfig = {
+const JSTableDefaultConfig = {
     perPage: 5,
     perPageSelect: [5, 10, 15, 20, 25],
 
@@ -61,7 +61,7 @@ const JSTabledefaultConfig = {
     // url for queries
     ajax: null,
     // additional params
-    ajaxParams : {}
+    ajaxParams: {}
 };
 
 class JSTable {
@@ -76,7 +76,7 @@ class JSTable {
             return;
         }
 
-        this.config = Object.assign({}, JSTabledefaultConfig, config);
+        this.config = Object.assign({}, JSTableDefaultConfig, config);
         this.table = new JSTableElement(DOMElement);
 
         // reset values
@@ -576,64 +576,114 @@ class JSTable {
         var that = this;
 
         /**
-         * - add "data-sortable" to table head when there is no data-sortable attribute and global sortable is active
-         * - sets the sorter css class on sortable columns
+         * change sortable attribute of columns:
+         * - a global definition of the sortable attribute of the table can be overwritten 
+         *   by a "data-sortable" attribute on the table header or 
+         *   by a custom column definitions attribute "sortable"
+         * - a custom column definitions attribute "sortable" can be overwritten
+         *   by a "data-sortable" attribute on the table header
+         * - a "data-sortable" attribute on the table header cannot be overwritten    
+         * 
+         * the initial sort column/direction can be defined on the table header (data-sort) or
+         * on the custom column definitions (attribute "sort") with possible values "asc"/"desc"
+         * - a custom column definitions attribute is overwritten by a "data-sort" attribute
+         * - since sorting is only supported for 1 column at the same time the last defined column is used 
          */
-        this.table.header.getCells().forEach(function (cell) {
-            let sortable = cell.hasAttribute("data-sortable") ? (cell.getAttribute("data-sortable") === "true") : that.config.sortable;
-            cell.setAttribute("data-sortable", sortable);
 
-            if (sortable) {
-                cell.classList.add(that.config.classes.sorter);
-            }
-        });
+        let initialSortColumn = null;
+        let initialSortDirection = null;
 
+        /**
+         * Process custom column definitions
+         */
         if (this.config.columns) {
 
-            this.config.columns.forEach(function (data) {
+            this.config.columns.forEach(function (columnsDefinition) {
 
                 // convert single column selection to array
-                if (!isNaN(data.select)) {
-                    data.select = [data.select];
+                if (!isNaN(columnsDefinition.select)) {
+                    columnsDefinition.select = [columnsDefinition.select];
                 }
 
                 // Add the data attributes to the th elements
-                data.select.forEach(function (column) {
+                columnsDefinition.select.forEach(function (column) {
+                    var tableHeaderCell = that.table.header.getCell(column);
 
-                    if (data.hasOwnProperty("render") && typeof data.render === "function") {
-                        that.columnRenderers[column] = data.render;
+                    /**
+                     * Rendering
+                     */
+                    if (columnsDefinition.hasOwnProperty("render") && typeof columnsDefinition.render === "function") {
+                        that.columnRenderers[column] = columnsDefinition.render;
                     }
 
-                    var cell = that.table.header.getCell(column);
+                    /**
+                     * Sortable
+                     */
+                    if (columnsDefinition.hasOwnProperty("sortable")) {
 
+                        let sortable = false;
+                        if (tableHeaderCell.hasAttribute("data-sortable")) {
+                            sortable = (tableHeaderCell.getAttribute("data-sortable") === "true");
+                        } else {
+                            sortable = columnsDefinition.sortable;
+                            tableHeaderCell.setAttribute("data-sortable", sortable);
+                        }
 
-                    if (data.hasOwnProperty("sortable")) {
-                        cell.setAttribute("data-sortable", data.sortable);
+                        if (sortable) {
+                            tableHeaderCell.classList.add(that.config.classes.sorter);
 
-                        /**
-                         * change css class depending on the custom column definition
-                         */
-                        if (data.sortable === false) {
-                            cell.classList.remove(that.config.classes.sorter);
-                        }else{
-                            cell.classList.add(that.config.classes.sorter);
+                            // save sortable column/direction
+                            // when there is one selected column in columns definition
+                            // and this column should be sortable
+                            if (columnsDefinition.hasOwnProperty("sort") && columnsDefinition.select.length === 1) {
+                                initialSortColumn = columnsDefinition.select[0];
+                                initialSortDirection = columnsDefinition.sort;
+                            }
                         }
                     }
 
-                    if (data.hasOwnProperty("searchable")) {
-                        cell.setAttribute("data-searchable", data.searchable);
+                    /**
+                     * Searchable (not serverside)
+                     */
+                    if (columnsDefinition.hasOwnProperty("searchable")) {
+                        tableHeaderCell.setAttribute("data-searchable", columnsDefinition.searchable);
 
-                        if (data.searchable === false) {
+                        if (columnsDefinition.searchable === false) {
                             that.columnsNotSearchable.push(column);
                         }
                     }
 
-                    if (data.hasOwnProperty("sort") && data.select.length === 1) {
-                        that.sort(data.select[0], data.sort, true);
-                    }
                 });
-
             });
+        }
+
+        /**
+         * Process data-attributes 
+         */
+        this.table.header.getCells().forEach(function (tableHeaderCell, columnIndex) {
+
+            let sortable = false;
+            if (tableHeaderCell.hasAttribute("data-sortable")) {
+                sortable = (tableHeaderCell.getAttribute("data-sortable") === "true");
+            } else {
+                sortable = that.config.sortable;
+                tableHeaderCell.setAttribute("data-sortable", sortable);
+            }
+
+            if (sortable) {
+                tableHeaderCell.classList.add(that.config.classes.sorter);
+
+                if (tableHeaderCell.hasAttribute("data-sort")) {
+                    initialSortColumn = columnIndex;
+                    initialSortDirection = tableHeaderCell.getAttribute("data-sort");
+                }
+            }
+        });
+
+
+        // sort the table by the last column which is marked to be sorted
+        if (initialSortColumn !== null) {
+            that.sort(initialSortColumn, initialSortDirection, true);
         }
 
     }
