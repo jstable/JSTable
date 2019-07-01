@@ -796,6 +796,10 @@ class JSTableRow {
     setCellContent(cell, content) {
         this.cells[cell].innerHTML = content;
     }
+    
+    setCellClass(cell, className) {
+        this.cells[cell].className = className;
+    }
 }
 
 class JSTablePager {
