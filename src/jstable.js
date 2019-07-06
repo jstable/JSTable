@@ -785,7 +785,7 @@ class JSTableRow {
             td.innerHTML = cell.innerHTML;
 
             if (renderer.hasOwnProperty(idx)) {
-                td.innerHTML = renderer[idx].call(that, cell.innerHTML);
+                td.innerHTML = renderer[idx].call(that, cell, idx);
             }
             tr.appendChild(td);
         });
