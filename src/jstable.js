@@ -240,6 +240,12 @@ class JSTable {
         else {
             that.table.element.classList.remove("hidden");
             that.table.body.innerHTML = "";
+            
+            // No Data
+            if (this.getDataCount() <= 0) {
+                that.wrapper.classList.remove("search-results");
+                that.setMessage(that.config.labels.noRows);
+            }
 
             this._getData().forEach(function (row) {
                 that.table.body.appendChild(row.getFormated(that.columnRenderers));
