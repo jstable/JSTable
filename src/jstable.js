@@ -476,6 +476,15 @@ class JSTable {
                 ca = !isNaN(ca) && ca !== '' ? parseFloat(ca) : ca;
                 cb = !isNaN(cb) && cb !== '' ? parseFloat(cb) : cb;
 
+                // Sort empty cells to top
+                if(ca === '' && cb !== ''){
+                    return that.sortDirection === "asc" ? 1 : -1;
+                }
+                if(ca !== '' && cb === ''){
+                    return that.sortDirection === "asc" ? -1 : 1;
+                }
+
+                // Otherwise
                 if (that.sortDirection === "asc") {
                     return ca === cb ? 0 : ca > cb ? 1 : -1;
                 }
