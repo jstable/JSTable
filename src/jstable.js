@@ -514,7 +514,7 @@ class JSTable {
             if (node.hasAttribute("data-page")) {
                 event.preventDefault();
                 let new_page = parseInt(node.getAttribute("data-page"), 10);
-                this._emit("paginate", that.currentPage, new_page);
+                that._emit("paginate", that.currentPage, new_page);
                 that.currentPage = new_page;
                 that.update();
             }
@@ -535,7 +535,7 @@ class JSTable {
                 if (node.nodeName === "SELECT" && node.classList.contains(that.config.classes.selector)) {
                     e.preventDefault();
                     let value = parseInt(node.value, 10);
-                    this._emit("perPageChange", that.config.perPage, value);
+                    that._emit("perPageChange", that.config.perPage, value);
                     that.config.perPage = value;
                     that.update();
                 }
