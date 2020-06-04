@@ -1,0 +1,21 @@
+{
+  "name": "jstable",
+  "version": "1.0.0",
+  "description": "a lightweight, dependency-free JavaScript plugin which makes a HTML table interactive",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Trekky12/JSTable.git"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Trekky12/JSTable/issues"
+  },
+  "homepage": "https://www.haegi.org/jstable/index.html",
+  "dependencies": {
+    "gulp": "^4.0.2",
+    "gulp-autoprefixer": "^7.0.1",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^4.1.0",
+    "gulp-terser": "^1.2.0"
+  }
+}
