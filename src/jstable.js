@@ -79,6 +79,8 @@ class JSTable {
         this.config = Object.assign({}, JSTableDefaultConfig, config);
         this.table = new JSTableElement(DOMElement);
 
+
+
         // reset values
         this.currentPage = 1;
         this.columnRenderers = [];
@@ -206,6 +208,19 @@ class JSTable {
         let loading = that.wrapper.querySelector(" ." + that.config.classes.loading);
         loading.classList.remove("hidden");
 
+        // Create Header
+        this.table.header.getCells().forEach(function (tableHeaderCell, columnIndex) {
+            let th = that.table.head.rows[0].cells[columnIndex];
+            th.innerHTML = tableHeaderCell.getContent();
+            if (tableHeaderCell.classes.length > 0) {
+                th.className = tableHeaderCell.classes.join(" ");
+            }
+            for (let attr in tableHeaderCell.attributes) {
+                th.setAttribute(attr, tableHeaderCell.attributes[attr]);
+            }
+            th.setAttribute("data-sortable", tableHeaderCell.isSortable);
+        });
+
         if (reloadData) {
 
             // Change Table Body
@@ -240,7 +255,7 @@ class JSTable {
         else {
             that.table.element.classList.remove("hidden");
             that.table.body.innerHTML = "";
-            
+
             // No Data
             if (this.getDataCount() <= 0) {
                 that.wrapper.classList.remove("search-results");
@@ -421,7 +436,7 @@ class JSTable {
                     });
 
                     hasMatch = cells.some(function (cell, idx) {
-                        if (cell.innerHTML.toLowerCase().indexOf(word) >= 0) {
+                        if (cell.getContent().toLowerCase().indexOf(word) >= 0) {
                             return true;
                         }
                     });
@@ -456,13 +471,13 @@ class JSTable {
 
 
         //Remove class from previus columns
-        let columns = Array.from(this.table.header.getCells());
-        columns.forEach(function (column) {
-            column.classList.remove("asc");
-            column.classList.remove("desc");
+        let tableHeaderCells = this.table.header.getCells();
+        tableHeaderCells.forEach(function (tableHeaderCell) {
+            tableHeaderCell.removeClass("asc");
+            tableHeaderCell.removeClass("desc");
         });
 
-        node.classList.add(this.sortDirection);
+        node.addClass(this.sortDirection);
 
         if (!this.config.serverSide) {
             rows = rows.sort(function (a, b) {
@@ -477,10 +492,10 @@ class JSTable {
                 cb = !isNaN(cb) && cb !== '' ? parseFloat(cb) : cb;
 
                 // Sort empty cells to top
-                if(ca === '' && cb !== ''){
+                if (ca === '' && cb !== '') {
                     return that.sortDirection === "asc" ? 1 : -1;
                 }
-                if(ca !== '' && cb === ''){
+                if (ca !== '' && cb === '') {
                     return that.sortDirection === "asc" ? -1 : 1;
                 }
 
@@ -508,6 +523,8 @@ class JSTable {
 
     _bindEvents() {
         var that = this;
+
+
         this.wrapper.addEventListener("click", function (event) {
             var node = event.target;
 
@@ -639,15 +656,15 @@ class JSTable {
                     if (columnsDefinition.hasOwnProperty("sortable")) {
 
                         let sortable = false;
-                        if (tableHeaderCell.hasAttribute("data-sortable")) {
-                            sortable = (tableHeaderCell.getAttribute("data-sortable") === "true");
+                        if (tableHeaderCell.hasSortable) {
+                            sortable = tableHeaderCell.isSortable;
                         } else {
                             sortable = columnsDefinition.sortable;
-                            tableHeaderCell.setAttribute("data-sortable", sortable);
+                            tableHeaderCell.setSortable(sortable);
                         }
 
                         if (sortable) {
-                            tableHeaderCell.classList.add(that.config.classes.sorter);
+                            tableHeaderCell.addClass(that.config.classes.sorter);
 
                             // save sortable column/direction
                             // when there is one selected column in columns definition
@@ -680,19 +697,19 @@ class JSTable {
         this.table.header.getCells().forEach(function (tableHeaderCell, columnIndex) {
 
             let sortable = false;
-            if (tableHeaderCell.hasAttribute("data-sortable")) {
-                sortable = (tableHeaderCell.getAttribute("data-sortable") === "true");
+            if (tableHeaderCell.hasSortable) {
+                sortable = tableHeaderCell.isSortable;
             } else {
                 sortable = that.config.sortable;
-                tableHeaderCell.setAttribute("data-sortable", sortable);
+                tableHeaderCell.setSortable(sortable);
             }
 
             if (sortable) {
-                tableHeaderCell.classList.add(that.config.classes.sorter);
+                tableHeaderCell.addClass(that.config.classes.sorter);
 
-                if (tableHeaderCell.hasAttribute("data-sort")) {
+                if (tableHeaderCell.hasSort) {
                     initialSortColumn = columnIndex;
-                    initialSortDirection = tableHeaderCell.getAttribute("data-sort");
+                    initialSortDirection = tableHeaderCell.sortDirection;
                 }
             }
         });
@@ -712,6 +729,7 @@ class JSTableElement {
         this.element = element;
 
         this.body = this.element.tBodies[0];
+        this.head = this.element.tHead;
 
         // we are modifying the data of the underlying element so first 
         // make a copy for row extraction
@@ -755,14 +773,16 @@ class JSTableRow {
 
     constructor(element, parentName) {
         // Process row cells 
-        this.cells = element.cells;
+        this.cells = Array.from(element.cells).map(function (cell) {
+            return new JSTableCell(cell);
+        });
+
         this.d = this.cells.length;
 
         //this.element = element;
         this.isHeader = parentName === "THEAD";
         this.isFooter = parentName === "TFOOT";
         this.visible = true;
-
     }
 
     getCells() {
@@ -779,7 +799,7 @@ class JSTableRow {
 
     // for sorting
     getCellContent(cell) {
-        return this.getCell(cell).innerHTML;
+        return this.getCell(cell).getContent();
     }
 
     static createFromData(data) {
@@ -799,10 +819,15 @@ class JSTableRow {
         this.getCells().forEach(function (cell, idx) {
 
             var td = document.createElement('td');
-            td.innerHTML = cell.innerHTML;
-
+            td.innerHTML = cell.getContent();
             if (renderer.hasOwnProperty(idx)) {
-                td.innerHTML = renderer[idx].call(that, cell, idx);
+                td.innerHTML = renderer[idx].call(that, cell.getElement(), idx);
+            }
+            if (cell.classes.length > 0) {
+                td.className = cell.classes.join(" ");
+            }
+            for (let attr in cell.attributes) {
+                td.setAttribute(attr, cell.attributes[attr]);
             }
             tr.appendChild(td);
         });
@@ -811,11 +836,67 @@ class JSTableRow {
     }
 
     setCellContent(cell, content) {
-        this.cells[cell].innerHTML = content;
+        this.cells[cell].setContent(content);
     }
-    
+
     setCellClass(cell, className) {
-        this.cells[cell].className = className;
+        this.cells[cell].setClassName(className);
+    }
+}
+
+class JSTableCell {
+
+    constructor(element) {
+        this.content = element.innerHTML;
+        this.className = "";
+        this.element = element;
+
+        this.hasSortable = element.hasAttribute("data-sortable");
+        this.isSortable = element.getAttribute("data-sortable") === "true";
+
+        this.hasSort = element.hasAttribute("data-sort");
+        this.sortDirection = element.getAttribute("data-sort");
+
+        this.classes = [];
+
+        var that = this;
+        // parse attributes
+        this.attributes = {};
+        [...element.attributes].forEach(function (attr) {
+            that.attributes[attr.name] = attr.value;
+        });
+    }
+
+    getElement() {
+        return this.element;
+    }
+
+    // for sorting
+    getContent() {
+        return this.content;
+    }
+
+    setContent(content) {
+        this.content = content;
+    }
+
+    setClass(className) {
+        this.className = className;
+    }
+
+    setSortable(value) {
+        this.isSortable = value;
+        //tableHeaderCell.setAttribute("data-sortable", sortable);
+    }
+
+    addClass(value) {
+        this.classes.push(value);
+    }
+
+    removeClass(value) {
+        if (this.classes.indexOf(value) >= 0) {
+            this.classes.splice(this.classes.indexOf(value), 1);
+        }
     }
 }
 

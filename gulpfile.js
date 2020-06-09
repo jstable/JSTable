@@ -3,6 +3,8 @@ const sass = require( 'gulp-sass' );
 const rename = require( 'gulp-rename' );
 const terser = require( 'gulp-terser' );
 const autoprefixer = require( 'gulp-autoprefixer' );
+const babel = require( 'gulp-babel' );
+const concat = require( 'gulp-concat' );
 
 function sassTask(cb) {
     return gulp.src( 'src/jstable.scss' )
@@ -22,10 +24,41 @@ function uglifyTask(cb) {
         .pipe( gulp.dest( 'dist' ) )
 }
 
+function uglifyCompatibilityTask(cb) {
+    return gulp.src( ['src/jstable.js'] )
+        //.pipe(concat('jstable.js'))
+        .pipe(babel({ presets: ['@babel/preset-env']}))
+        .pipe( terser() )
+        .on( 'error', printError )
+        .pipe( rename( {
+            suffix: '.min'
+        } ) )
+        .pipe( gulp.dest( 'dist' ) )
+}
+
+function copyPolyfillBabel(cb) {
+    return gulp.src( 'node_modules/babel-polyfill/dist/polyfill.js')
+        .pipe( terser() )
+        .pipe( rename('polyfill-babel.min.js') )
+        .pipe( gulp.dest( 'dist' ) )
+}
+
+function copyPolyfillPromise(cb) {
+    return gulp.src( 'node_modules/promise-polyfill/dist/polyfill.min.js')
+        .pipe( rename('polyfill-promise.min.js') )
+        .pipe( gulp.dest( 'dist' ) )
+}
+
+function copyPolyfillFetch(cb) {
+    return gulp.src( 'node_modules/whatwg-fetch/dist/fetch.umd.js')
+        .pipe( terser() )
+        .pipe( rename('polyfill-fetch.min.js'))
+        .pipe( gulp.dest( 'dist' ) )
+}
+
 function watchTask(cb) {
-    livereload.listen();
     gulp.watch( [ 'src/*.scss' ], sassTask )
-    gulp.watch( 'src/*.js', uglifyTask );
+    gulp.watch( 'src/*.js', uglifyCompatibilityTask );
 }
 
 function printError( error ) {
@@ -42,5 +75,6 @@ function printError( error ) {
 }
 
 exports.sass = sassTask;
-exports.uglify = uglifyTask;
+exports.uglify = gulp.series(uglifyCompatibilityTask, copyPolyfillBabel, copyPolyfillPromise, copyPolyfillFetch);
+
 exports.default = watchTask;
