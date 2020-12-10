@@ -521,6 +521,12 @@ class JSTable {
         this._emit("sort", this.sortColumn, this.sortDirection);
 
     }
+    
+    paginate(new_page){
+    	this._emit("paginate", this.currentPage, new_page);
+	this.currentPage = new_page;
+	this.update();
+    }
 
     _bindEvents() {
         var that = this;
@@ -532,9 +538,7 @@ class JSTable {
             if (node.hasAttribute("data-page")) {
                 event.preventDefault();
                 let new_page = parseInt(node.getAttribute("data-page"), 10);
-                that._emit("paginate", that.currentPage, new_page);
-                that.currentPage = new_page;
-                that.update();
+                that.paginate(new_page);
             }
 
             if (node.nodeName === "TH" && node.hasAttribute("data-sortable")) {
