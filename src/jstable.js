@@ -212,7 +212,7 @@ class JSTable {
         this.table.header.getCells().forEach(function (tableHeaderCell, columnIndex) {
 
             let th = that.table.head.rows[0].cells[columnIndex];
-            th.innerHTML = tableHeaderCell.getContent();
+            th.innerHTML = tableHeaderCell.getElement().innerHTML;
             if (tableHeaderCell.classes.length > 0) {
                 th.className = tableHeaderCell.classes.join(" ");
             }
@@ -822,7 +822,7 @@ class JSTableRow {
         this.getCells().forEach(function (cell, idx) {
 
             var td = document.createElement('td');
-            td.innerHTML = cell.getContent();
+            td.innerHTML = cell.getElement().innerHTML;
             if (renderer.hasOwnProperty(idx)) {
                 td.innerHTML = renderer[idx].call(that, cell.getElement(), idx);
             }
@@ -850,7 +850,7 @@ class JSTableRow {
 class JSTableCell {
 
     constructor(element) {
-        this.content = element.innerHTML;
+        this.content = element.textContent;
         this.className = "";
         this.element = element;
 
