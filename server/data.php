@@ -39,7 +39,7 @@ if ($search) {
 /*
  * Sort
  */
-if (!is_null($sortColumnIndex) && $sortColumnIndex !== FALSE && $sortColumnIndex !== "null") {
+if (!is_null($sortColumnIndex) && $sortColumnIndex !== FALSE && $sortColumnIndex !== "null" && is_numeric($sortColumnIndex)) {
     array_multisort(array_column($filtered, $sortColumnIndex), ($sortDirection === "asc" ? SORT_ASC : SORT_DESC), $filtered);
 }
 
