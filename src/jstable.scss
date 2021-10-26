@@ -176,3 +176,200 @@
     display:none!important;
     opacity:0!important;
 }
+
+
+/* JSTable formatting, making resposive & look and feel */
+.dt-table {
+  border: 1px solid #ccc;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  table-layout: fixed;
+  caption-side: top;
+}
+
+.dt-table caption {
+  font-size: 1.5em;
+  margin: 0.5em 0 0.75em;
+}
+
+.dt-table tr {
+  /* background-color: #f8f8f8; */
+  border: 1px solid #ddd;
+  padding: 0.35em;
+}
+.dt-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.dt-table th,
+.dt-table td {
+  padding: 0.625em;
+  text-align: center;
+}
+
+.dt-table th {
+  font-size: 0.85em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  user-select: none;
+}
+
+.dt-table > tbody > tr > td,
+.dt-table > tbody > tr > th,
+.dt-table > tfoot > tr > td,
+.dt-table > tfoot > tr > th,
+.dt-table > thead > tr > td,
+.dt-table > thead > tr > th {
+  white-space: normal;
+  text-align: justify;
+}
+
+.dt-wrapper .dt-search .dt-input,
+.dt-wrapper .dt-dropdown .dt-selector {
+  border: 1px solid lightsteelblue;
+  border-radius: 5px;
+  box-shadow: 0 0 3px 1px lightsteelblue;
+  border: none;
+}
+
+@media screen and (max-width: 768px) {
+  .dt-table {
+    border: 0;
+  }
+
+  .dt-table caption {
+    font-size: 1.3em;
+  }
+
+  /* the head can be hidden */
+  .dt-table thead.rslHideMobile {
+    border: none;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+  }
+
+  .dt-table tr {
+    border-bottom: 3px solid #ddd;
+    display: block;
+    margin-bottom: 0.625em;
+    box-shadow: 0px 0px 5px 1px lightgrey;
+    margin-bottom: 1rem;
+  }
+
+  /* Apply same formatting for header */
+  .dt-table td,
+  .dt-table th {
+    border-bottom: 1px solid #ddd;
+    display: block;
+    font-size: 0.8em;
+    text-align: right;
+    width: 100% !important;
+  }
+
+  .dt-table td::before {
+    /*
+    * aria-label has no advantage, it won't be read inside a table
+    content: attr(aria-label);
+    */
+    /* content: attr(data-label); */
+    /* Adds the new line cahracter combined with whitespace pre and display content gievs next line */
+    content: attr(data-label) "\A";
+    float: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: pre;
+    display: contents;
+  }
+
+  .dt-table td:last-child {
+    border-bottom: 0;
+  }
+
+  .dt-table > tbody > tr > td,
+  .dt-table > tbody > tr > th,
+  .dt-table > tfoot > tr > td,
+  .dt-table > tfoot > tr > th,
+  .dt-table > thead > tr > td,
+  .dt-table > thead > tr > th {
+    white-space: pre-line;
+    white-space: normal;
+    /* text-align: justify; */
+    text-align: initial;
+  }
+}
+rslMark {
+  color: black;
+  background-color: yellow;
+  font-weight: 500;
+  font-size: 1.1em;
+}
+
+/* https://www.w3schools.com/howto/howto_css_switch.asp */
+/* Add Toggle Switch to any component */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 34px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 26px;
+  width: 26px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  -webkit-transition: 0.4s;
+  transition: 0.4s;
+}
+
+input:checked + .slider {
+  background-color: #2196f3;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+  -webkit-transform: translateX(26px);
+  -ms-transform: translateX(26px);
+  transform: translateX(26px);
+}
+
+/* Rounded sliders */
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
