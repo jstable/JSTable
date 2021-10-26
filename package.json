@@ -11,7 +11,12 @@
     "url": "https://github.com/Trekky12/JSTable/issues"
   },
   "homepage": "https://www.haegi.org/jstable/index.html",
-  "dependencies": {
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not ie <= 8"
+  ],
+  "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
     "babel-polyfill": "^6.26.0",
@@ -23,11 +28,7 @@
     "gulp-sass": "^5.0.0",
     "gulp-terser": "^2.0.1",
     "promise-polyfill": "8.2.0",
-    "whatwg-fetch": "^3.6.2"
-  },
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ]
+    "whatwg-fetch": "^3.6.2",
+    "node-sass": "^6.0.1"
+  }
 }

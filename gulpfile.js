@@ -1,5 +1,5 @@
 const gulp = require( 'gulp' );
-const sass = require( 'gulp-sass' );
+const sass = require( 'gulp-sass' )(require('node-sass'));
 const rename = require( 'gulp-rename' );
 const terser = require( 'gulp-terser' );
 const autoprefixer = require( 'gulp-autoprefixer' );
