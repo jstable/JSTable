@@ -76,7 +76,7 @@ class JSTable {
             return;
         }
 
-        this.config = Object.assign({}, JSTableDefaultConfig, config);
+        this.config = this._merge(JSTableDefaultConfig, config);
         this.table = new JSTableElement(DOMElement);
 
 
@@ -723,6 +723,19 @@ class JSTable {
             that.sort(initialSortColumn, initialSortDirection, true);
         }
 
+    }
+
+    // deep merge two objects
+    _merge(current, update) {
+        var that = this;
+        Object.keys(current).forEach(function (key) {
+            if (update.hasOwnProperty(key) && typeof update[key] === "object" && !(update[key] instanceof Array)) {
+                that._merge(current[key], update[key]);
+            } else if (!update.hasOwnProperty(key)) {
+                update[key] = current[key];
+            }
+        });
+        return update;
     }
 }
 
