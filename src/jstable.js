@@ -648,6 +648,11 @@ class JSTable {
                 columnsDefinition.select.forEach(function (column) {
                     var tableHeaderCell = that.table.header.getCell(column);
 
+                    // Skip missing
+                    if (tableHeaderCell === undefined) {
+                        return;
+                    }
+
                     /**
                      * Rendering
                      */
