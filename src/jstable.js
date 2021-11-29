@@ -752,8 +752,8 @@ class JSTableElement {
         //let table = this.element.cloneNode(true);
 
         // Process table rows 
-        this.rows = Array.from(this.element.rows).map(function (row) {
-            return new JSTableRow(row, row.parentNode.nodeName);
+        this.rows = Array.from(this.element.rows).map(function (row, rowID) {
+            return new JSTableRow(row, row.parentNode.nodeName, rowID);
         });
 
         this.dataRows = this._getBodyRows();
@@ -787,7 +787,7 @@ class JSTableElement {
 
 class JSTableRow {
 
-    constructor(element, parentName) {
+    constructor(element, parentName = "", rowID = null) {
         // Process row cells 
         this.cells = Array.from(element.cells).map(function (cell) {
             return new JSTableCell(cell);
@@ -799,6 +799,7 @@ class JSTableRow {
         this.isHeader = parentName === "THEAD";
         this.isFooter = parentName === "TFOOT";
         this.visible = true;
+        this.rowID = rowID;
     }
 
     getCells() {
