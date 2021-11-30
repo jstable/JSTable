@@ -776,7 +776,7 @@ class JSTable {
         // parse page param and navigate to page
         let page = urlParams.get(this.config.queryParams.page);
         if (page) {
-            await this.paginate(page);
+            await this.paginate(parseInt(page));
         }
     }
 }
