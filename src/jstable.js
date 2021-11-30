@@ -61,7 +61,14 @@ const JSTableDefaultConfig = {
     // url for queries
     ajax: null,
     // additional params
-    ajaxParams: {}
+    ajaxParams: {},
+    // query params names
+    queryParams: {
+        page: 'page',
+        search: 'search'
+    },
+    // append query params on events
+    addQueryParams: true
 };
 
 class JSTable {
@@ -78,8 +85,6 @@ class JSTable {
 
         this.config = this._merge(JSTableDefaultConfig, config);
         this.table = new JSTableElement(DOMElement);
-
-
 
         // reset values
         this.currentPage = 1;
@@ -107,6 +112,8 @@ class JSTable {
 
         this._emit("init");
 
+        this._parseQueryParams();
+
     }
 
     _build() {
@@ -118,7 +125,6 @@ class JSTable {
 
 
         var inner = [
-
             "<div class='", options.classes.top, "'>", options.layout.top, "</div>",
             "<div class='", options.classes.container, "'>",
             "<div class='", options.classes.loading, " hidden'>", options.labels.loading, "</div>",
@@ -128,9 +134,9 @@ class JSTable {
 
         // Info placement
         inner = inner.replace(
-                "{info}",
-                "<div class='" + options.classes.info + "'></div>"
-                );
+            "{info}",
+            "<div class='" + options.classes.info + "'></div>"
+        );
 
         // Per Page Select
         if (options.perPageSelect) {
@@ -181,9 +187,9 @@ class JSTable {
         // Pager
 
         inner = inner.replace(
-                "{pager}",
-                "<div class='" + options.classes.pagination + "'></div>"
-                );
+            "{pager}",
+            "<div class='" + options.classes.pagination + "'></div>"
+        );
 
         this.wrapper.innerHTML = inner;
 
@@ -197,7 +203,7 @@ class JSTable {
 
     }
 
-    update(reloadData = true) {
+    async update(reloadData = true) {
         var that = this;
 
         // no overlap please
@@ -225,7 +231,7 @@ class JSTable {
         if (reloadData) {
 
             // Change Table Body
-            this.getPageData(this.currentPage).then(function (data) {
+            return this.getPageData(this.currentPage).then(function (data) {
 
                 that.table.element.classList.remove("hidden");
                 that.table.body.innerHTML = "";
@@ -237,7 +243,6 @@ class JSTable {
                 loading.classList.add("hidden");
 
             }).then(function () {
-
 
                 // No Data
                 if (that.getDataCount() <= 0) {
@@ -266,9 +271,8 @@ class JSTable {
             this._getData().forEach(function (row) {
                 that.table.body.appendChild(row.getFormated(that.columnRenderers));
             });
-
             loading.classList.add("hidden");
-    }
+        }
     }
 
     _updatePagination() {
@@ -276,8 +280,6 @@ class JSTable {
         let pagination = this.wrapper.querySelector(" ." + this.config.classes.pagination);
         pagination.innerHTML = "";
         pagination.appendChild(this.pager.render(this.currentPage));
-
-
     }
 
     _updateInfo() {
@@ -287,12 +289,12 @@ class JSTable {
         let infoString = this.isSearching ? this.config.labels.infoFiltered : this.config.labels.info;
         if (info && infoString.length) {
             var string = infoString
-                    .replace("{start}", this.getDataCount() > 0 ? this._getPageStartIndex() + 1 : 0)
-                    .replace("{end}", this._getPageEndIndex() + 1)
-                    .replace("{page}", this.currentPage)
-                    .replace("{pages}", this.pager.getPages())
-                    .replace("{rows}", this.getDataCount())
-                    .replace("{rowsTotal}", this.getDataCountTotal());
+                .replace("{start}", this.getDataCount() > 0 ? this._getPageStartIndex() + 1 : 0)
+                .replace("{end}", this._getPageEndIndex() + 1)
+                .replace("{page}", this.currentPage)
+                .replace("{pages}", this.pager.getPages())
+                .replace("{rows}", this.getDataCount())
+                .replace("{rowsTotal}", this.getDataCountTotal());
 
             info.innerHTML = string;
         }
@@ -356,8 +358,8 @@ class JSTable {
 
     _queryParams(params) {
         return Object.keys(params)
-                .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
-                .join('&');
+            .map(k => encodeURIComponent(k) + '=' + encodeURIComponent(params[k]))
+            .join('&');
     }
 
     getDataCount() {
@@ -398,7 +400,7 @@ class JSTable {
         });
     }
 
-    search(query) {
+    async search(query) {
         var that = this;
 
         this.searchQuery = query.toLowerCase();
@@ -452,9 +454,9 @@ class JSTable {
         }
         this.wrapper.classList.add("search-results");
 
-        this.update();
-
-        this._emit("search", query);
+        return this.update().then(function () {
+            that._emit("search", query);
+        });
 
     }
 
@@ -521,11 +523,14 @@ class JSTable {
         this._emit("sort", this.sortColumn, this.sortDirection);
 
     }
-    
-    paginate(new_page){
-    	this._emit("paginate", this.currentPage, new_page);
-	this.currentPage = new_page;
-	this.update();
+
+    async paginate(new_page) {
+        var that = this;
+
+        this.currentPage = new_page;
+        return this.update().then(function () {
+            that._emit("paginate", that.currentPage, new_page);
+        });
     }
 
     _bindEvents() {
@@ -539,6 +544,12 @@ class JSTable {
                 event.preventDefault();
                 let new_page = parseInt(node.getAttribute("data-page"), 10);
                 that.paginate(new_page);
+
+                if (that.config.addQueryParams) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set(that.config.queryParams.page, new_page);
+                    window.history.replaceState(null, null, url);
+                }
             }
 
             if (node.nodeName === "TH" && node.hasAttribute("data-sortable")) {
@@ -569,6 +580,12 @@ class JSTable {
                 if (e.target.nodeName === "INPUT" && e.target.classList.contains(that.config.classes.input)) {
                     e.preventDefault();
                     that.search(e.target.value);
+
+                    if (that.config.addQueryParams) {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set(that.config.queryParams.search, e.target.value);
+                        window.history.replaceState(null, null, url);
+                    }
                 }
             });
         }
@@ -601,10 +618,10 @@ class JSTable {
 
         var node = document.createElement("tr");
         node.innerHTML = '<td class="' + this.config.classes.message + '" colspan="' +
-                colspan +
-                '">' +
-                message +
-                "</td>";
+            colspan +
+            '">' +
+            message +
+            "</td>";
 
         this.table.body.innerHTML = "";
 
@@ -741,6 +758,26 @@ class JSTable {
             }
         });
         return update;
+    }
+
+    async _parseQueryParams() {
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // parse search param and populate search
+        let search = urlParams.get(this.config.queryParams.search);
+        if (search) {
+            let searchfields = this.wrapper.querySelectorAll('.' + this.config.classes.input);
+            searchfields.forEach(function (searchfield) {
+                searchfield.value = search;
+            });
+            await this.search(search);
+        }
+
+        // parse page param and navigate to page
+        let page = urlParams.get(this.config.queryParams.page);
+        if (page) {
+            await this.paginate(page);
+        }
     }
 }
 
@@ -945,7 +982,7 @@ class JSTablePager {
         if (pages > 1) {
 
             let prev = this.instance.currentPage === 1 ? 1 : this.instance.currentPage - 1,
-                    next = this.instance.currentPage === pages ? pages : this.instance.currentPage + 1;
+                next = this.instance.currentPage === pages ? pages : this.instance.currentPage + 1;
 
             // first button
             if (options.firstLast) {
@@ -992,15 +1029,15 @@ class JSTablePager {
 
     truncate() {
         var that = this,
-                options = that.instance.config,
-                delta = options.pagerDelta * 2,
-                currentPage = that.instance.currentPage,
-                left = currentPage - options.pagerDelta,
-                right = currentPage + options.pagerDelta,
-                totalPages = this.getPages(),
-                range = [],
-                pager = [],
-                lastIndex;
+            options = that.instance.config,
+            delta = options.pagerDelta * 2,
+            currentPage = that.instance.currentPage,
+            left = currentPage - options.pagerDelta,
+            right = currentPage + options.pagerDelta,
+            totalPages = this.getPages(),
+            range = [],
+            pager = [],
+            lastIndex;
 
         if (!this.instance.config.truncatePager) {
             for (let i = 1; i <= this.getPages(); i++) {
