@@ -11,24 +11,27 @@
     "url": "https://github.com/Trekky12/JSTable/issues"
   },
   "homepage": "https://www.haegi.org/jstable/index.html",
-  "browserslist": [
-    "> 1%",
-    "last 2 versions",
-    "not ie <= 8"
-  ],
   "devDependencies": {
-    "@babel/core": "^7.15.0",
-    "@babel/preset-env": "^7.15.0",
-    "babel-polyfill": "^6.26.0",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "babel-loader": "^8.2.3",
+    "core-js": "^3.19.1",
     "gulp": "^4.0.2",
     "gulp-autoprefixer": "^8.0.0",
-    "gulp-babel": "^8.0.0",
     "gulp-concat": "^2.6.1",
     "gulp-rename": "^2.0.0",
     "gulp-sass": "^5.0.0",
-    "gulp-terser": "^2.0.1",
-    "promise-polyfill": "8.2.0",
-    "whatwg-fetch": "^3.6.2",
-    "node-sass": "^6.0.1"
-  }
+    "gulp-terser": "^2.1.0",
+    "terser-webpack-plugin": "^5.2.5",
+    "vinyl-named": "^1.1.0",
+    "webpack": "^5.64.4",
+    "webpack-stream": "^7.0.0",
+    "whatwg-fetch": "^3.6.2"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie <= 8"
+  ]
 }

@@ -1,5 +1,5 @@
 /*!
- * JSTable
+ * JSTable v1.3
  */
 
 const JSTableDefaultConfig = {
@@ -218,7 +218,7 @@ class JSTable {
         this.table.header.getCells().forEach(function (tableHeaderCell, columnIndex) {
 
             let th = that.table.head.rows[0].cells[columnIndex];
-            th.innerHTML = tableHeaderCell.getElement().innerHTML;
+            th.innerHTML = tableHeaderCell.getInnerHTML();
             if (tableHeaderCell.classes.length > 0) {
                 th.className = tableHeaderCell.classes.join(" ");
             }
@@ -272,6 +272,7 @@ class JSTable {
                 that.table.body.appendChild(row.getFormated(that.columnRenderers));
             });
             loading.classList.add("hidden");
+
         }
     }
 
@@ -280,6 +281,8 @@ class JSTable {
         let pagination = this.wrapper.querySelector(" ." + this.config.classes.pagination);
         pagination.innerHTML = "";
         pagination.appendChild(this.pager.render(this.currentPage));
+
+
     }
 
     _updateInfo() {
@@ -439,7 +442,7 @@ class JSTable {
                     });
 
                     hasMatch = cells.some(function (cell, idx) {
-                        if (cell.getContent().toLowerCase().indexOf(word) >= 0) {
+                        if (cell.getTextContent().toLowerCase().indexOf(word) >= 0) {
                             return true;
                         }
                     });
@@ -484,8 +487,8 @@ class JSTable {
 
         if (!this.config.serverSide) {
             rows = rows.sort(function (a, b) {
-                var ca = a.getCellContent(that.sortColumn).toLowerCase();
-                var cb = b.getCellContent(that.sortColumn).toLowerCase();
+                var ca = a.getCellTextContent(that.sortColumn).toLowerCase();
+                var cb = b.getCellTextContent(that.sortColumn).toLowerCase();
 
                 // replace $, coma, whitespace and %
                 ca = ca.replace(/(\$|\,|\s|%)/g, "");
@@ -857,8 +860,8 @@ class JSTableRow {
     }
 
     // for sorting
-    getCellContent(cell) {
-        return this.getCell(cell).getContent();
+    getCellTextContent(cell) {
+        return this.getCell(cell).getTextContent();
     }
 
     static createFromData(data) {
@@ -876,9 +879,8 @@ class JSTableRow {
         let tr = document.createElement("tr");
         var that = this;
         this.getCells().forEach(function (cell, idx) {
-
             var td = document.createElement('td');
-            td.innerHTML = cell.getElement().innerHTML;
+            td.innerHTML = cell.getInnerHTML();
             if (renderer.hasOwnProperty(idx)) {
                 td.innerHTML = renderer[idx].call(that, cell.getElement(), idx);
             }
@@ -894,10 +896,6 @@ class JSTableRow {
 
     }
 
-    setCellContent(cell, content) {
-        this.cells[cell].setContent(content);
-    }
-
     setCellClass(cell, className) {
         this.cells[cell].addClass(className);
     }
@@ -906,7 +904,8 @@ class JSTableRow {
 class JSTableCell {
 
     constructor(element) {
-        this.content = element.textContent;
+        this.textContent = element.textContent;
+        this.innerHTML = element.innerHTML;
         this.className = "";
         this.element = element;
 
@@ -931,12 +930,13 @@ class JSTableCell {
     }
 
     // for sorting
-    getContent() {
-        return this.content;
+    getTextContent() {
+        return this.textContent;
     }
 
-    setContent(content) {
-        this.content = content;
+    // for rendering
+    getInnerHTML() {
+        return this.innerHTML;
     }
 
     setClass(className) {
@@ -1077,3 +1077,5 @@ class JSTablePager {
     }
 
 }
+
+window.JSTable = JSTable;
