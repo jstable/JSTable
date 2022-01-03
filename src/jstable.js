@@ -876,6 +876,15 @@ class JSTableRow {
     static createFromData(data) {
         let tr = document.createElement("tr");
 
+        if(data.hasOwnProperty("data")){
+            if(data.hasOwnProperty("attributes")){
+                for (const attrName in data["attributes"]) {
+                    tr.setAttribute(attrName, data["attributes"][attrName])
+                }
+            }
+            data = data["data"];
+        }
+
         data.forEach(function (cellData) {
             let td = document.createElement("td");
             td.innerHTML = !!cellData && cellData.hasOwnProperty("data") ? cellData["data"]: cellData;
