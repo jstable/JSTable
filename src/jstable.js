@@ -237,7 +237,7 @@ class JSTable {
                 that.table.body.innerHTML = "";
 
                 data.forEach(function (row) {
-                    that.table.body.appendChild(row.getFormated(that.columnRenderers));
+                    that.table.body.appendChild(row.getFormatted(that.columnRenderers));
                 });
 
                 loading.classList.add("hidden");
@@ -269,7 +269,7 @@ class JSTable {
             }
 
             this._getData().forEach(function (row) {
-                that.table.body.appendChild(row.getFormated(that.columnRenderers));
+                that.table.body.appendChild(row.getFormatted(that.columnRenderers));
             });
             loading.classList.add("hidden");
 
@@ -875,7 +875,7 @@ class JSTableRow {
         return new JSTableRow(tr);
     }
 
-    getFormated(renderer) {
+    getFormatted(renderer) {
         let tr = document.createElement("tr");
         var that = this;
         this.getCells().forEach(function (cell, idx) {
