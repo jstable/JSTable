@@ -1,5 +1,5 @@
 /*!
- * JSTable v1.3
+ * JSTable v1.4
  */
 
 const JSTableDefaultConfig = {
@@ -68,7 +68,9 @@ const JSTableDefaultConfig = {
         search: 'search'
     },
     // append query params on events
-    addQueryParams: true
+    addQueryParams: true,
+
+    rowAttributesCreator: null
 };
 
 class JSTable {
@@ -237,7 +239,7 @@ class JSTable {
                 that.table.body.innerHTML = "";
 
                 data.forEach(function (row) {
-                    that.table.body.appendChild(row.getFormated(that.columnRenderers));
+                    that.table.body.appendChild(row.getFormatted(that.columnRenderers, that.config.rowAttributesCreator));
                 });
 
                 loading.classList.add("hidden");
@@ -269,7 +271,7 @@ class JSTable {
             }
 
             this._getData().forEach(function (row) {
-                that.table.body.appendChild(row.getFormated(that.columnRenderers));
+                that.table.body.appendChild(row.getFormatted(that.columnRenderers, that.config.rowAttributesCreator));
             });
             loading.classList.add("hidden");
 
@@ -845,6 +847,13 @@ class JSTableRow {
         this.isFooter = parentName === "TFOOT";
         this.visible = true;
         this.rowID = rowID;
+
+        var that = this;
+        // parse attributes
+        this.attributes = {};
+        [...element.attributes].forEach(function (attr) {
+            that.attributes[attr.name] = attr.value;
+        });
     }
 
     getCells() {
@@ -868,21 +877,37 @@ class JSTableRow {
         let tr = document.createElement("tr");
 
         data.forEach(function (cellData) {
-            let td = document.createElement('td');
-            td.innerHTML = cellData;
+            let td = document.createElement("td");
+            td.innerHTML = !!cellData && cellData.hasOwnProperty("data") ? cellData["data"]: cellData;
+
+            if(!!cellData && cellData.hasOwnProperty("attributes")){
+                for (const attrName in cellData["attributes"]) {
+                    td.setAttribute(attrName, cellData["attributes"][attrName])
+                }
+            }
             tr.appendChild(td);
         });
         return new JSTableRow(tr);
     }
 
-    getFormated(renderer) {
+    getFormatted(columnRenderers, rowAttributesCreator = null) {
         let tr = document.createElement("tr");
         var that = this;
+
+        for (let attr in this.attributes) {
+            tr.setAttribute(attr, this.attributes[attr]);
+        }
+        
+        let rowAttributes = !!rowAttributesCreator ? rowAttributesCreator.call(this, this.getCells()): {};
+        for (const attrName in rowAttributes) {
+            tr.setAttribute(attrName, rowAttributes[attrName])
+        }
+
         this.getCells().forEach(function (cell, idx) {
             var td = document.createElement('td');
             td.innerHTML = cell.getInnerHTML();
-            if (renderer.hasOwnProperty(idx)) {
-                td.innerHTML = renderer[idx].call(that, cell.getElement(), idx);
+            if (columnRenderers.hasOwnProperty(idx)) {
+                td.innerHTML = columnRenderers[idx].call(that, cell.getElement(), idx);
             }
             if (cell.classes.length > 0) {
                 td.className = cell.classes.join(" ");
