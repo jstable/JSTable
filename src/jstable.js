@@ -1,5 +1,5 @@
 /*!
- * JSTable v1.5
+ * JSTable v1.5.1
  */
 
 const JSTableDefaultConfig = {
@@ -499,11 +499,11 @@ class JSTable {
                 ca = !isNaN(ca) && ca !== '' ? parseFloat(ca) : ca;
                 cb = !isNaN(cb) && cb !== '' ? parseFloat(cb) : cb;
 
-                // Sort empty cells to top
-                if (ca === '' && cb !== '') {
+                // Sort empty cells or cells with different content types (numeric/not numeric) to top
+                if ((ca === '' && cb !== '') || (isNaN(ca) && !isNaN(cb))) {
                     return that.sortDirection === "asc" ? 1 : -1;
                 }
-                if (ca !== '' && cb === '') {
+                if ((ca !== '' && cb === '') || (!isNaN(ca) && isNaN(cb))) {
                     return that.sortDirection === "asc" ? -1 : 1;
                 }
 
