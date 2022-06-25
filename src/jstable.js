@@ -1,5 +1,5 @@
 /*!
- * JSTable v1.5
+ * JSTable v1.6.0
  */
 
 const JSTableDefaultConfig = {
