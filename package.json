@@ -1,16 +1,16 @@
 {
-  "name": "jstable",
+  "name": "@jstable/jstable",
   "version": "1.6.0",
   "description": "a lightweight, dependency-free JavaScript plugin which makes a HTML table interactive",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Trekky12/JSTable.git"
+    "url": "git+https://github.com/jstable/JSTable.git"
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Trekky12/JSTable/issues"
+    "url": "https://github.com/jstable/JSTable/issues"
   },
-  "homepage": "https://www.haegi.org/jstable/index.html",
+  "homepage": "https://jstable.github.io/",
   "devDependencies": {
     "@babel/core": "^7.18.5",
     "@babel/preset-env": "^7.18.2",
