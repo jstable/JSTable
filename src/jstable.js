@@ -1,5 +1,5 @@
 /*!
- * JSTable v1.5.1
+ * JSTable v1.6.0
  */
 
 const JSTableDefaultConfig = {
@@ -96,6 +96,7 @@ class JSTable {
         this.sortColumn = null;
         this.sortDirection = "asc";
         this.isSearching = false;
+        this.dataCount = null;
         this.filteredDataCount = null;
 
 
@@ -107,7 +108,7 @@ class JSTable {
         this._buildColumns();
 
         // update table content
-        this.update(!this.config.serverSide);
+        this.update(this.config.deferLoading === null);
 
         // bind events
         this._bindEvents();
@@ -347,6 +348,7 @@ class JSTable {
             return response.json();
         }).then(function (json) {
             that._emit("fetchData", json);
+            that.dataCount = json.recordsTotal;
             that.filteredDataCount = json.recordsFiltered;
             return json.data;
         }).then(function (data) {
@@ -383,7 +385,7 @@ class JSTable {
 
     getDataCountTotal() {
         if (this.config.serverSide) {
-            return this.config.deferLoading;
+            return this.config.deferLoading !== null ? this.config.deferLoading : this.dataCount;
         }
         return this.table.dataRows.length;
     }
@@ -756,7 +758,7 @@ class JSTable {
     _merge(current, update) {
         var that = this;
         Object.keys(current).forEach(function (key) {
-            if (update.hasOwnProperty(key) && typeof update[key] === "object" && !(update[key] instanceof Array)) {
+            if (update.hasOwnProperty(key) && typeof update[key] === "object" && !(update[key] instanceof Array) && update[key] !== null) {
                 that._merge(current[key], update[key]);
             } else if (!update.hasOwnProperty(key)) {
                 update[key] = current[key];
