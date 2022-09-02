@@ -411,11 +411,15 @@ class JSTable {
     }
 
     async search(query) {
+        var that = this;
+
         // do nothing if the query has not changed since last search
         if (this.searchQuery === query.toLowerCase()) {
             return false;
         }
-        
+
+        this.searchQuery = query.toLowerCase();
+
         // do not perform another search before enough time has passed since the last
         if (this.config.searchDelay) {
             if (this.searchTimeout) {
@@ -431,11 +435,6 @@ class JSTable {
                 );
             }
         }
-
-
-        var that = this;
-
-        this.searchQuery = query.toLowerCase();
 
         // reset parameters
         this.currentPage = 1;
