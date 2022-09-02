@@ -70,7 +70,9 @@ const JSTableDefaultConfig = {
     // append query params on events
     addQueryParams: true,
 
-    rowAttributesCreator: null
+    rowAttributesCreator: null,
+
+    searchDelay: null
 };
 
 class JSTable {
@@ -98,6 +100,7 @@ class JSTable {
         this.isSearching = false;
         this.dataCount = null;
         this.filteredDataCount = null;
+        this.searchTimeout = null;
 
 
         // init pager
@@ -408,6 +411,28 @@ class JSTable {
     }
 
     async search(query) {
+        // do nothing if the query has not changed since last search
+        if (this.searchQuery === query.toLowerCase()) {
+            return false;
+        }
+        
+        // do not perform another search before enough time has passed since the last
+        if (this.config.searchDelay) {
+            if (this.searchTimeout) {
+                return false;
+            } else {
+                // trigger search again after the given delay
+                this.searchTimeout = setTimeout(
+                    function () {
+                        that.searchTimeout = null;
+                        that._parseQueryParams();
+                    },
+                    this.config.searchDelay
+                );
+            }
+        }
+
+
         var that = this;
 
         this.searchQuery = query.toLowerCase();
