@@ -72,7 +72,10 @@ const JSTableDefaultConfig = {
 
     rowAttributesCreator: null,
 
-    searchDelay: null
+    searchDelay: null,
+
+    // http method request, default is: GET
+    method: 'GET'
 };
 
 class JSTable {
@@ -341,7 +344,7 @@ class JSTable {
         let query = this.config.ajax + '?' + this._queryParams(params);
 
         return fetch(query, {
-            method: 'GET',
+            method: this.config.method,
             credentials: "same-origin",
             headers: {
                 'Accept': 'application/json',
