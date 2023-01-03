@@ -65,7 +65,10 @@ const JSTableDefaultConfig = {
     // query params names
     queryParams: {
         page: 'page',
-        search: 'search'
+        search: 'search',
+        sortColumn: 'sort_column',
+        sortDirection: 'sort_direction',
+        perPage: 'per_page'
     },
     // append query params on events
     addQueryParams: true,
@@ -567,6 +570,16 @@ class JSTable {
         });
     }
 
+    _setQueryParam(key, value) {
+      var that = this;
+
+      if (!that.config.addQueryParams) return;
+
+      const url = new URL(window.location.href);
+      url.searchParams.set(that.config.queryParams[key], value);
+      window.history.replaceState(null, null, url);
+    }
+
     _bindEvents() {
         var that = this;
 
@@ -579,11 +592,7 @@ class JSTable {
                 let new_page = parseInt(node.getAttribute("data-page"), 10);
                 that.paginate(new_page);
 
-                if (that.config.addQueryParams) {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set(that.config.queryParams.page, new_page);
-                    window.history.replaceState(null, null, url);
-                }
+                that._setQueryParam('page', new_page)
             }
 
             if (node.nodeName === "TH" && node.hasAttribute("data-sortable")) {
@@ -592,7 +601,11 @@ class JSTable {
                     return false;
 
                 event.preventDefault();
-                that.sort(node.cellIndex, node.classList.contains("asc") ? "desc" : "asc");
+                let sortDirection = node.classList.contains("asc") ? "desc" : "asc";
+                that.sort(node.cellIndex, sortDirection);
+
+                that._setQueryParam('sortColumn', node.cellIndex)
+                that._setQueryParam('sortDirection', sortDirection)
             }
         });
 
@@ -605,6 +618,8 @@ class JSTable {
                     that._emit("perPageChange", that.config.perPage, value);
                     that.config.perPage = value;
                     that.update();
+
+                    that._setQueryParam('perPage', value)
                 }
             });
         }
@@ -615,11 +630,7 @@ class JSTable {
                     e.preventDefault();
                     that.search(e.target.value);
 
-                    if (that.config.addQueryParams) {
-                        const url = new URL(window.location.href);
-                        url.searchParams.set(that.config.queryParams.search, e.target.value);
-                        window.history.replaceState(null, null, url);
-                    }
+                    that._setQueryParam('search', e.target.value)
                 }
             });
         }
@@ -796,7 +807,20 @@ class JSTable {
 
     async _parseQueryParams() {
         const urlParams = new URLSearchParams(window.location.search);
-        
+
+        let perPage = urlParams.get(this.config.queryParams.perPage);
+        if (perPage) {
+          perPage = parseInt(perPage)
+          this.config.perPage = perPage;
+          let selectors = this.wrapper.querySelectorAll('.' + this.config.classes.selector);
+          selectors.forEach(function (selector) {
+            selector.querySelectorAll('option').forEach(opt => opt.removeAttribute('selected'))
+            selector.value = perPage;
+            selector.querySelector(`option[value='${perPage}']`).setAttribute('selected', '')
+          });
+          this.update()
+        }
+
         // parse search param and populate search
         let search = urlParams.get(this.config.queryParams.search);
         if (search) {
@@ -811,6 +835,14 @@ class JSTable {
         let page = urlParams.get(this.config.queryParams.page);
         if (page) {
             await this.paginate(parseInt(page));
+        }
+
+        let sortColumn = urlParams.get(this.config.queryParams.sortColumn);
+        if (sortColumn) {
+          sortColumn = parseInt(sortColumn)
+          let sortDirection = urlParams.get(this.config.queryParams.sortDirection);
+          sortDirection = (sortDirection == undefined) ? "asc" : sortDirection;
+          this.sort(sortColumn, sortDirection);
         }
     }
 }
