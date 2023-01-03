@@ -66,9 +66,9 @@ const JSTableDefaultConfig = {
     queryParams: {
         page: 'page',
         search: 'search',
-        sortColumn: 'sort_column',
-        sortDirection: 'sort_direction',
-        perPage: 'per_page'
+        sortColumn: 'sortColumn',
+        sortDirection: 'sortDirection',
+        perPage: 'perPage'
     },
     // append query params on events
     addQueryParams: true,
@@ -571,12 +571,10 @@ class JSTable {
     }
 
     _setQueryParam(key, value) {
-      var that = this;
-
-      if (!that.config.addQueryParams) return;
+      if (!this.config.addQueryParams) return;
 
       const url = new URL(window.location.href);
-      url.searchParams.set(that.config.queryParams[key], value);
+      url.searchParams.set(this.config.queryParams[key], value);
       window.history.replaceState(null, null, url);
     }
 
