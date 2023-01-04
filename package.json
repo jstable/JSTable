@@ -1,6 +1,6 @@
 {
   "name": "@jstable/jstable",
-  "version": "1.6.3",
+  "version": "1.6.4",
   "description": "a lightweight, dependency-free JavaScript plugin which makes a HTML table interactive",
   "repository": {
     "type": "git",
