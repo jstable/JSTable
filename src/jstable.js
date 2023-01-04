@@ -432,7 +432,6 @@ class JSTable {
                 this.searchTimeout = setTimeout(
                     function () {
                         that.searchTimeout = null;
-                        that._parseQueryParams();
                     },
                     this.config.searchDelay
                 );
