@@ -1,5 +1,5 @@
 /*!
- * JSTable v1.6.5
+ * JSTable v1.6.6
  */
 
 const JSTableDefaultConfig = {
@@ -67,6 +67,7 @@ const JSTableDefaultConfig = {
         page: 'page',
         search: 'search',
         sortColumn: 'sortColumn',
+        sortColumnName: 'sortColumnName',
         sortDirection: 'sortDirection',
         perPage: 'perPage'
     },
@@ -100,6 +101,7 @@ class JSTable {
         this.currentPage = 1;
         this.columnRenderers = [];
         this.columnsNotSearchable = [];
+        this.columnNames = [];
         this.searchQuery = null;
         this.sortColumn = null;
         this.sortDirection = "asc";
@@ -336,6 +338,7 @@ class JSTable {
         let params = {
             "searchQuery": this.searchQuery,
             "sortColumn": this.sortColumn,
+            "sortColumnName": this.columnNames[this.sortColumn],
             "sortDirection": this.sortDirection,
             "start": this._getPageStartIndex(),
             "length": this.config.perPage,
@@ -779,6 +782,7 @@ class JSTable {
                     initialSortDirection = tableHeaderCell.sortDirection;
                 }
             }
+            that.columnNames.push(tableHeaderCell.columnName);
         });
 
 
@@ -1006,6 +1010,9 @@ class JSTableCell {
 
         this.hasSort = element.hasAttribute("data-sort");
         this.sortDirection = element.getAttribute("data-sort");
+
+        this.hasColumName = element.hasAttribute("data-col-name");
+        this.columnName = element.getAttribute("data-col-name");
 
         this.classes = [];
 

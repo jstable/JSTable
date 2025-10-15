@@ -1,6 +1,6 @@
 {
   "name": "@jstable/jstable",
-  "version": "1.6.5",
+  "version": "1.6.6",
   "description": "a lightweight, dependency-free JavaScript plugin which makes a HTML table interactive",
   "repository": {
     "type": "git",
@@ -12,22 +12,21 @@
   },
   "homepage": "https://jstable.github.io/",
   "devDependencies": {
-    "@babel/core": "^7.19.3",
-    "@babel/preset-env": "^7.19.3",
-    "babel-loader": "^8.2.5",
-    "core-js": "^3.25.4",
-    "gulp": "^4.0.2",
-    "gulp-autoprefixer": "^8.0.0",
+    "@babel/core": "^7.28.4",
+    "@babel/preset-env": "^7.28.3",
+    "babel-loader": "^10.0.0",
+    "core-js": "^3.46.0",
+    "gulp": "^5.0.1",
     "gulp-concat": "^2.6.1",
-    "gulp-rename": "^2.0.0",
-    "gulp-sass": "^5.1.0",
+    "gulp-rename": "^2.1.0",
+    "gulp-sass": "^6.0.1",
     "gulp-terser": "^2.1.0",
-    "node-sass": "^7.0.3",
-    "terser-webpack-plugin": "^5.3.6",
+    "sass": "^1.93.2",
+    "terser-webpack-plugin": "^5.3.14",
     "vinyl-named": "^1.1.0",
-    "webpack": "^5.74.0",
+    "webpack": "^5.102.1",
     "webpack-stream": "^7.0.0",
-    "whatwg-fetch": "^3.6.2"
+    "whatwg-fetch": "^3.6.20"
   },
   "browserslist": [
     "> 1%",

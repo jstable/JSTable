@@ -1,16 +1,17 @@
 const gulp = require('gulp');
-const sass = require( 'gulp-sass' )(require('node-sass'));
+const sass = require('gulp-sass')(require('sass'));
 const rename = require('gulp-rename');
 const terser = require('gulp-terser');
-const autoprefixer = require('gulp-autoprefixer');
 const webpackStream = require('webpack-stream');
 const TerserPlugin = require("terser-webpack-plugin");
 
 function sassTask(cb) {
     return gulp.src('src/jstable.scss')
-        .pipe(sass({ outputStyle: 'compressed' })
-            .on('error', printError))
-        .pipe(autoprefixer())
+        .pipe(sass({
+            style: 'compressed',
+            includePaths: ['sass'],
+            silenceDeprecations: ['legacy-js-api']
+        }))
         .pipe(gulp.dest('dist'));
 }
 
